@@ -9,42 +9,84 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const MyHomePage(),
+    return const MaterialApp(
+      home: BalanceScreen(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+class BalanceScreen extends StatelessWidget {
+  const BalanceScreen({super.key});
 
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('Flutter'),
-      ),
-      body: const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
+      backgroundColor: Colors.black,
+      body: Center(
+        child: CustomPaint(
+          size: const Size(200, 200),
+          painter: CircularBalancePainter(),
+          child: const Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '\$5,643.50',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  'Available Balance',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
   }
+}
+
+class CircularBalancePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    double progress = 0.75; // Example progress
+    double startAngle = -90.0;
+    double sweepAngle = 360 * progress;
+
+    Paint backgroundPaint = Paint()
+      ..color = Colors.grey.shade800
+      ..strokeWidth = 20
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    Paint progressPaint = Paint()
+      ..shader = SweepGradient(
+        colors: const [Colors.purple, Colors.blue, Colors.green],
+        startAngle: startAngle * 0.0174533,
+        endAngle: (startAngle + sweepAngle) * 0.0174533,
+      ).createShader(Rect.fromCircle(
+          center: Offset(size.width / 2, size.height / 2),
+          radius: size.width / 2))
+      ..strokeWidth = 20
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    Offset center = Offset(size.width / 2, size.height / 2);
+    double radius = size.width / 2;
+
+    canvas.drawCircle(center, radius, backgroundPaint);
+    canvas.drawArc(Rect.fromCircle(center: center, radius: radius),
+        startAngle * 0.0174533, sweepAngle * 0.0174533, false, progressPaint);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
